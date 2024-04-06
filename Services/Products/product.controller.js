@@ -31,6 +31,8 @@ const addProduct = async (req, res, next) => {
 
 const getAllProducts = async ( req , res , next) => {
     try {
+        const ahmed = process.env.CLOUDINARY_API_SECRET
+        console.log(ahmed);
         const Products = await Product.find();
         if (!Products) {
             throw new ErrorHandler(404 ,"Products not found")

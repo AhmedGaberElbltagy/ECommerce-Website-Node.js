@@ -5,8 +5,7 @@ app.use(express.json());
 Connection();
 
 
-const dotenv = require('dotenv');
-dotenv.config() ;
+require('dotenv').config();
 
 
 
