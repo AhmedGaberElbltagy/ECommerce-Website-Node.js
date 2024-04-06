@@ -7,7 +7,7 @@ const uploadFields = require('../../utils/fileUpload')
 
 
 router.post('/addProduct',protectedRouter,uploadFields([{ name: 'imageCover', maxCount: 1},{ name: 'images',maxCount: 5}]) ,addProduct);
-//uploadFields([{ name: 'imageCover'},{ name: 'images'}])
+
 router.get('/getAllProducts',getAllProducts)
 
 module.exports = router;

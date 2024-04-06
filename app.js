@@ -17,11 +17,12 @@ const cartRoutes = require('./Services/Cart/cart.routes');
 app.use(cartRoutes);
 const orderRoutes = require('./Services/Order/order.routes');
 app.use(orderRoutes);
-
+const reviewRoutes = require('./Services/Review/review.routes');
+app.use(reviewRoutes)
 
 
 app.listen(3000,()=>{
     console.log(`Server is Listening on Port ${process.env.PORT} `);
 })
-//set CLOUDINARY_URL=cloudinary://214723445242532:PnroVBZYTLc-x5Kbemacu29NDTo@ddqoqjwcf
+
 

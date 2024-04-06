@@ -31,11 +31,30 @@ const addProduct = async (req, res, next) => {
 
 const getAllProducts = async ( req , res , next) => {
     try {
-        const Products = await Product.find();
+        const Products = await Product.find().populate('productReviews');
         if (!Products) {
             throw new ErrorHandler(404 ,"Products not found")
         }
-        return response(true ,200 ,{Products} ,res)
+        const productsWithReviews = Products.map(product => {
+            return {
+                title: product.title,
+                description : product.description,
+                price : product.price,
+                quantity : product.quantity,
+                images:product.images,
+                imageCover:product.imageCover,
+
+                reviews: product.productReviews.map(review => ({
+                    _id: review._id,
+                    text: review.text,
+                    user: review.user,
+                    rate: review.rate,
+                    createdAt: review.createdAt,
+                    updatedAt: review.updatedAt
+                }))
+            };
+        });
+        return response(true ,200 ,{productsWithReviews} ,res)
     } catch (error) {
         next(error)
     }

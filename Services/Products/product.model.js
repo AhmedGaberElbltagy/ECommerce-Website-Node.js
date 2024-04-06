@@ -40,10 +40,25 @@ const productSchema = new mongoose.Schema({
     
     imageCover:{
         type:String,
-        required:true,
+        required:false,
     },
-  
+    rateCount :{
+        type:Number,
+        min: 0,
+        default: 0
+    },
+    rateAvg:{
+        type:Number,
+        max: 5,
+        min: 0
+    },
 });
+
+productSchema.virtual('productReviews',{
+    ref:'review',
+    localField:'_id',
+    foreignField:'product'
+})
 
 const Product = mongoose.model("product",productSchema);
 module.exports = Product;
