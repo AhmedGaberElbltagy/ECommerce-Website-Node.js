@@ -36,21 +36,10 @@ const getAllProducts = async ( req , res , next) => {
             throw new ErrorHandler(404 ,"Products not found")
         }
         const productsWithReviews = Products.map(product => {
-            return {
-                title: product.title,
-                description : product.description,
-                price : product.price,
-                quantity : product.quantity,
-                images:product.images,
-                imageCover:product.imageCover,
-
+            return { 
+                product,
                 reviews: product.productReviews.map(review => ({
-                    _id: review._id,
-                    text: review.text,
-                    user: review.user,
-                    rate: review.rate,
-                    createdAt: review.createdAt,
-                    updatedAt: review.updatedAt
+                    review
                 }))
             };
         });
