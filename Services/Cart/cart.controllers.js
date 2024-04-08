@@ -16,15 +16,15 @@ const addtoCart = async (req, res, next) => {
         //Check if Product is avaliable .
         const product = await Product.findById(req.body.product);
         if (!product) {
-            throw new ErrorHandler( 400 , "product not found");
+            throw new ErrorHandler(404, "product not found");
         }
         //Check if the wanted quantity is avaliable
         if (product.quantity < req.body.quantity) {
-            throw new ErrorHandler( 401 , "product sold out" )
+            throw new ErrorHandler(401, "product sold out")
         }
         //Check if the user have already a cart
         const iscartExist = await Cart.findOne({ user: req.user })
-            req.body.price = product.price
+        req.body.price = product.price
         // if the user have not a cart Creating a new one 
         if (!iscartExist) {
             let cart = new Cart({
@@ -37,23 +37,23 @@ const addtoCart = async (req, res, next) => {
         }
         else {
             let item = iscartExist.cartItem.find((item) => item.product == req.body.product);
-                if (item) {
-                    let avaliableQuantity = Math.abs(product.quantity - item.quantity);
-                    if (item.quantity + req.body.quantity > product.quantity) {
+            if (item) {
+                let avaliableQuantity = Math.abs(product.quantity - item.quantity);
+                if (item.quantity + req.body.quantity > product.quantity) {
                     res.send(`only avalible is ${avaliableQuantity}`);
                 }
-                    item.quantity += req.body.quantity;
-                    await iscartExist.save();
-                    return response(true, 200, { iscartExist }, res);
-                }
-                else {
-                    iscartExist.cartItem.push(req.body);
-                    calcCartPrice(iscartExist);
-                    await iscartExist.save();
-                    return response(true, 200, { cart: iscartExist }, res);
+                item.quantity += req.body.quantity;
+                await iscartExist.save();
+                return response(true, 200, { iscartExist }, res);
+            }
+            else {
+                iscartExist.cartItem.push(req.body);
+                calcCartPrice(iscartExist);
+                await iscartExist.save();
+                return response(true, 200, { cart: iscartExist }, res);
             }
         }
-    }catch (error) {
+    } catch (error) {
         next(error)
     }
 }
@@ -62,9 +62,9 @@ const getCart = async (req, res, next) => {
     try {
         const cart = await Cart.findOne({ user: req.user }).populate('cartItem.product');
         if (!cart) {
-            res.status(401).json({ message: "cart not found" })
+            throw new ErrorHandler(404, "Cart not found ")
         } else {
-            res.status(200).json({ message: "cart", cart })
+            return response(true, 200, { cart }, res)
         }
     } catch (error) {
         next(error);
@@ -75,39 +75,50 @@ const removeItemfromCart = async (req, res, next) => {
     try {
         let updatedCart = await Cart.findOneAndUpdate({ user: req.user },
             { $pull: { cartItem: { _id: req.params.id } } }, { new: true });
+        // caculate the cart totalPrice after remove this item ;
         calcCartPrice(updatedCart);
         await updatedCart.save()
-        !updatedCart && next(new AppError('item not found', 404))
-        res.status(200).json({ message: "done", updatedCart })
+        if (!updatedCart) {
+            throw new ErrorHandler(404, " item not found ")
+        }
+        return response(true, 200, { updatedCart }, res)
     } catch (error) {
-        next(error);
+        next(error)
     }
 }
 
 const updateQuantity = async (req, res, next) => {
     try {
-        let cart = await Cart.findOne({ user: req.user });
-        if (!cart) return res.send("cart not found");
-        let item = await cart.cartItem.find(item => item.id == req.params.id);
+        let itemId = req.params.id;
+        let userCart = req.user;
+        let cart = await Cart.findOne({ user: userCart });
+        if (!cart) {
+            throw new ErrorHandler(404, "cart not found")
+        }
+        let item = await cart.cartItem.find(item => item.id == itemId);
         if (!item) {
-            res.send("item not found")
+            throw new ErrorHandler(404, "item not found")
         }
         item.quantity = req.body.quantity;
         calcCartPrice(cart)
         await cart.save();
-        res.send({ msg: 'success', cart })
+        return response(true, 200, { cart }, res)
     } catch (error) {
         next(error)
     }
 }
 
 const clearUserCart = async (req, res, next) => {
-    const cart = await Cart.findOne({ user: req.user })
-    if (!cart) {
-        res.status(401).json({ message: "cart not found" })
+    try {
+        const cart = await Cart.findOne({ user: req.user })
+        if (!cart) {
+            throw new ErrorHandler(404, "cart not found")
+        }
+        await cart.deleteOne();
+        return response(true, 200, "cart cleared", res)
+    } catch (error) {
+        next(error)
     }
-    await cart.deleteOne();
-    res.status(200).json({ message: "cart Cleared" })
 }
 
 module.exports = { addtoCart, updateQuantity, removeItemfromCart, getCart, clearUserCart }

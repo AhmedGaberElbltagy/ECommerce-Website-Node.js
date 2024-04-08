@@ -7,7 +7,6 @@ exports.addtoCart = joi.object({
     price: joi.number(),
 })
 exports.updatequantity = joi.object({
-    id: joi.string().hex().length(24).required(),
     quantity: joi.number().integer().required()
 })
 
