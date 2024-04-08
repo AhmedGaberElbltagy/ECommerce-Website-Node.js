@@ -4,21 +4,11 @@ const Connection = require('./Database/connection');
 app.use(express.json());
 Connection();
 
+const bootstrab = require('./Services/index.router')
 
 require('dotenv').config();
 
-
-
-const userRoutes = require('./Services/users/user.routes');
-app.use(userRoutes);
-const productRoutes = require('./Services/Products/product.routes');
-app.use(productRoutes);
-const cartRoutes = require('./Services/Cart/cart.routes');
-app.use(cartRoutes);
-const orderRoutes = require('./Services/Order/order.routes');
-app.use(orderRoutes);
-const reviewRoutes = require('./Services/Review/review.routes');
-app.use(reviewRoutes)
+bootstrab(app)
 
 
 app.listen(3000,()=>{
