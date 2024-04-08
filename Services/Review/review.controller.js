@@ -33,6 +33,7 @@ try {
 } catch (error) {
     next(error)
 }}
+
 const getAllReviews = async (req ,res ,next) => {
 try {
        const AllReviews =  await Review.find()
@@ -42,4 +43,20 @@ try {
     }
 }
 
-module.exports = {addReview , getAllReviews}
+const updateReview = async (req, res, next) => {
+    let review = await Review.findOneAndUpdate({ user: req.user, _id: req.params.id }, req.body, { new: true })
+    if (!review) {
+       throw new ErrorHandler( 404 , "Review not found")
+    }
+    return response( true , 200 , review ,res )
+}
+
+const deleteReview = async (req, res, next) => {
+    const review = await Review.findByIdAndDelete(req.params.id)
+    if (!review) {
+        throw new ErrorHandler( 404 , "Review not found")
+     }
+     return response( true , 200 , "deleted",res )
+}
+
+module.exports = {addReview , getAllReviews , updateReview , deleteReview}
